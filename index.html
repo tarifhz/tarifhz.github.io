@@ -69,6 +69,12 @@ footer{max-width:920px;margin:0 auto;padding:18px 20px 30px;border-top:1px solid
 #explore .xmenu{background:transparent;border:none;box-shadow:none;padding:6px 0 0}
 #explore .xmenu a{background:#bfe3f2;color:#0b2a3a;margin-bottom:4px;border:1px solid #93c9de;box-shadow:0 2px 8px rgba(0,0,0,.15)}
 #explore .xmenu a:hover{background:#a6d6ea;color:#0b2a3a}
+.tw{overflow-x:auto}
+table{width:100%;border-collapse:collapse}
+th,td{border:1px solid var(--border);padding:6px 10px;text-align:left}
+th{background:var(--surface)}
+th.num,td.num{text-align:right}
+.cwrap{max-width:920px;margin:0 auto;padding:0 20px 24px}
 .ptitle{font-size:1.9em;line-height:1.2;margin:8px 0 18px;padding-bottom:6px;border-bottom:1px solid var(--border)}
 #pages{min-height:60vh}
 @media (max-width:640px){.hero{grid-template-columns:1fr;text-align:center;justify-items:center}.btns,.toprow{justify-content:center}h1{font-size:1.9em}nav .hide{display:none}}
@@ -122,6 +128,7 @@ footer{max-width:920px;margin:0 auto;padding:18px 20px 30px;border-top:1px solid
   <section id="education"><h2>Education</h2><div id="eduList"></div></section>
   <section id="skills"><h2>Skills</h2><div class="grid" id="skillGrid"></div></section>
   <section id="contact"><h2>Contact</h2><div class="card" id="contactBox"></div></section>
+<section id="stats"><h2>Visit Statistics</h2><p class="sub" id="statsTotal"></p><div class="tw" id="statsBox"></div></section>
 </main>
 <main id="pages" hidden>
   <section class="page" id="blog" hidden><a class="back" href="#top">← Back to home</a><h1 class="ptitle">Blog Posts</h1><div class="grid" id="blogGrid"></div></section>
@@ -134,6 +141,7 @@ footer{max-width:920px;margin:0 auto;padding:18px 20px 30px;border-top:1px solid
   <section class="page" id="papers" hidden><a class="back" href="#top">← Back to home</a><h1 class="ptitle">Paper Review</h1><div class="grid" id="paperGrid"></div></section>
   <section class="page" id="eureka" hidden><a class="back" href="#top">← Back to home</a><h1 class="ptitle">Eureka</h1><div class="grid" id="eurekaGrid"></div></section>
 </main>
+<div class="cwrap"><section id="comments"><h2 id="cTitle">Comments</h2><p class="ph" id="cNote"></p><div id="disqus_thread"></div></section></div>
 <footer id="foot"></footer>
 <div id="toast" role="status"></div>
 
@@ -146,6 +154,8 @@ const CONFIG = {
   headline: "Electrical and Electronics Engineer | Neuromorphic Engineering Enthusiast | Neural Computing and Technology",
   bio: "Hi there! This time it is not what you thought before. It is what you are doing now you never thought. Yes! I am trying to bridge these two kinds in an uninteresting way for others, and in a very enthusiastic way for myself this time. “Yeah, Mr. White! Yeah, science!”",
   location: "Chattogram, Bangladesh-4202",
+  goatcounter: "",   // your free GoatCounter code (the part before .goatcounter.com) turns on visit and click counting
+  disqus: "",   // your Disqus shortname turns on comments, replies and likes
   email: "hazaritarif@gmail.com",
   photo: "",   // paste an image data URL here later; empty shows a placeholder
   links: [
@@ -188,7 +198,8 @@ const CONFIG = {
 
 const $ = id => document.getElementById(id);
 function el(tag, cls, text){ const e = document.createElement(tag); if(cls) e.className = cls; if(text !== undefined) e.textContent = text; return e; }
-function ext(label, url){ const a = el("a"); a.href = url; a.target = "_blank"; a.rel = "noopener noreferrer"; a.append(document.createTextNode(label)); const s = el("sup","arr","↗"); s.setAttribute("aria-hidden","true"); a.append(s); return a; }
+function slug(s){ return s.toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,""); }
+function ext(label, url){ const a = el("a"); a.dataset.track = "click-" + slug(label); a.href = url; a.target = "_blank"; a.rel = "noopener noreferrer"; a.append(document.createTextNode(label)); const s = el("sup","arr","↗"); s.setAttribute("aria-hidden","true"); a.append(s); return a; }
 function ph(t){ return el("p","ph",t); }
 function toast(msg){ const t = $("toast"); t.textContent = msg; t.classList.add("on"); setTimeout(()=>t.classList.remove("on"),2200); }
 
@@ -199,7 +210,7 @@ $("name").textContent = C.name;
 $("headline").textContent = C.headline;
 $("bio").textContent = C.bio;
 $("loc").textContent = C.location;
-{ const r = $("toprow"); const m = el("a","",C.email); m.href = "mailto:" + C.email; r.append(m); C.links.forEach(l => r.append(ext(l.label, l.url))); }
+{ const r = $("toprow"); const m = el("a","",C.email); m.href = "mailto:" + C.email; m.dataset.track = "click-email"; r.append(m); C.links.forEach(l => r.append(ext(l.label, l.url))); }
 $("foot").textContent = "© " + new Date().getFullYear() + " " + C.name;
 
 const photo = $("photo");
@@ -207,7 +218,7 @@ if (C.photo) { const i = el("img"); i.src = C.photo; i.alt = "Portrait of " + C.
 else photo.textContent = "Profile photo placeholder";
 
 C.cvs.forEach(cv => {
-  const b = el("a","btn","⬇ " + cv.label);
+  const b = el("a","btn","⬇ " + cv.label); b.dataset.track = "click-" + slug(cv.label);
   if (cv.url) { b.href = cv.url; b.target = "_blank"; b.rel = "noopener noreferrer"; b.setAttribute("download",""); }
   else { b.href = "#"; b.addEventListener("click", e => { e.preventDefault(); toast(cv.label + " file has not been added yet"); }); }
   $("cvs").append(b);
@@ -257,7 +268,7 @@ C.skills.forEach(s => {
 });
 
 const cb = $("contactBox");
-const em = el("p"); em.append(document.createTextNode("Email: ")); const ea = el("a","",C.email); ea.href = "mailto:" + C.email; em.append(ea); cb.append(em);
+const em = el("p"); em.append(document.createTextNode("Email: ")); const ea = el("a","",C.email); ea.href = "mailto:" + C.email; ea.dataset.track = "click-email"; em.append(ea); cb.append(em);
 C.links.forEach(l => { const p = el("p"); p.append(ext(l.label, l.url)); cb.append(p); });
 cb.append(el("p","sub","Location: " + C.location));
 
@@ -290,11 +301,70 @@ dx.querySelectorAll(".xmenu a").forEach(a => a.addEventListener("click", closeD)
 document.addEventListener("click", e => { if (!dx.contains(e.target)) closeD(); });
 addEventListener("keydown", e => { if (e.key === "Escape") closeD(); });
 
+/* Visit and click counting with GoatCounter (turned on by CONFIG.goatcounter) */
+const GC = (C.goatcounter || "").trim();
+let lastView = null;
+if (GC){ const s = document.createElement("script"); s.async = true; s.dataset.goatcounter = "https://" + GC + ".goatcounter.com/count"; s.dataset.goatcounterSettings = JSON.stringify({no_onload:true}); s.src = "https://gc.zgo.at/count.js"; document.head.append(s); }
+function hit(path){
+  if (!GC) return; let n = 0;
+  const t = setInterval(() => { if (window.goatcounter && window.goatcounter.count){ clearInterval(t); window.goatcounter.count({path: path, title: path}); } else if (++n > 50) clearInterval(t); }, 100);
+}
+document.addEventListener("click", e => {
+  const a = e.target.closest("a"); if (!a) return;
+  let key = a.dataset.track;
+  if (!key && a.closest(".xmenu") && a.hash) key = "click-" + a.hash.slice(1);
+  if (key) hit("/" + key);
+});
+function getCount(path, raw){
+  const p = raw ? path : encodeURIComponent("/" + path);
+  return fetch("https://" + GC + ".goatcounter.com/counter/" + p + ".json").then(r => r.ok ? r.json() : {count:"0"}).then(d => d.count).catch(() => "–");
+}
+function loadStats(){
+  const box = $("statsBox"); box.textContent = "";
+  const rows = [["Home","home",null]];
+  PAGES.forEach(id => rows.push([$(id).querySelector(".ptitle").textContent, id, "click-" + id]));
+  C.links.forEach(l => rows.push([l.label, null, "click-" + slug(l.label)]));
+  rows.push(["Email", null, "click-email"]);
+  C.cvs.forEach(cv => rows.push([cv.label, null, "click-" + slug(cv.label)]));
+  const t = el("table"), hd = el("tr");
+  ["#","Page or link","Views","Clicks"].forEach((x,i) => hd.append(el("th", i > 1 ? "num" : "", x)));
+  t.append(hd);
+  const cells = [];
+  rows.forEach((r,i) => {
+    const tr = el("tr"), v = el("td","num", r[1] ? "…" : "n/a"), c = el("td","num", r[2] ? "…" : "n/a");
+    tr.append(el("td","",String(i + 1)), el("td","",r[0]), v, c); t.append(tr); cells.push([r, v, c]);
+  });
+  box.append(t);
+  if (!GC){
+    $("statsTotal").textContent = "Counters are off. Add your GoatCounter code to the goatcounter field in CONFIG to turn them on.";
+    cells.forEach(([r,v,c]) => { if (r[1]) v.textContent = "–"; if (r[2]) c.textContent = "–"; });
+    return;
+  }
+  getCount("TOTAL", true).then(n => { $("statsTotal").textContent = "Total views: " + n; });
+  cells.forEach(([r,v,c]) => { if (r[1]) getCount(r[1]).then(n => { v.textContent = n; }); if (r[2]) getCount(r[2]).then(n => { c.textContent = n; }); });
+}
+
+/* Comments with Disqus (turned on by CONFIG.disqus): one thread per page, replies and likes are built in */
+const DQ = (C.disqus || "").trim();
+let dqLoaded = false;
+function loadComments(view){
+  const label = view === "home" ? "Home page" : $(view).querySelector(".ptitle").textContent;
+  $("cTitle").textContent = "Comments: " + label;
+  if (!DQ){ $("cNote").textContent = "[Comments are off. Add your Disqus shortname to the disqus field in CONFIG to turn them on.]"; return; }
+  const cfg = function(){ this.page.identifier = view; this.page.url = location.origin + location.pathname + "#" + view; };
+  if (!dqLoaded){
+    dqLoaded = true; window.disqus_config = cfg;
+    const s = document.createElement("script"); s.src = "https://" + DQ + ".disqus.com/embed.js"; s.setAttribute("data-timestamp", String(Date.now())); s.async = true; document.body.append(s);
+  } else if (window.DISQUS){ window.DISQUS.reset({reload: true, config: cfg}); }
+}
+
 /* Page routing: Explore and Deep Dive items open as separate pages, everything else is the home page */
 const PAGES = ["blog","movies","tv","books","music","latest","tech","papers","eureka"];
 function route(){
   const h = decodeURIComponent(location.hash.slice(1));
   const isPage = PAGES.includes(h);
+  const cur = isPage ? h : "home";
+  if (cur !== lastView){ lastView = cur; hit("/" + cur); loadComments(cur); }
   $("home").hidden = isPage;
   $("pages").hidden = !isPage;
   PAGES.forEach(p => { $(p).hidden = p !== h; });
@@ -303,6 +373,7 @@ function route(){
 }
 addEventListener("hashchange", route);
 route();
+loadStats();
 
 /* Theme toggle */
 const root = document.documentElement, tbtn = $("theme");
