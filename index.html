@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Tarif Hazari | Electrical and Electronics Engineer</title>
 <meta name="description" content="Portfolio of Tarif Hazari: Electrical and Electronics Engineer, neuromorphic engineering and neural computing.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text x=%222%22 y=%2280%22 font-size=%2285%22>🌏</text><text x=%2242%22 y=%2298%22 font-size=%2260%22>🪕</text></svg>">
 <style>
 :root{--bg:#e0f7fa;--surface:#d2f1f6;--text:#000;--muted:#2f4a50;--link:#b8860b;--border:#9fd3db;--hdr:#e0f7fa;color-scheme:light}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0b0f14;--surface:#131a22;--text:#fff;--muted:#aab4bf;--link:#4a73ff;--border:#26323f;--hdr:#0b0f14;color-scheme:dark}}
@@ -59,6 +60,12 @@ footer{max-width:920px;margin:0 auto;padding:18px 20px 30px;border-top:1px solid
 .explore.open .xmenu{display:block}
 .xmenu a{display:block;padding:6px 10px;border-radius:5px;color:var(--text)}
 .xmenu a:hover{background:var(--bg);color:var(--link);text-decoration:none}
+.back{display:inline-block;margin-top:34px}
+.explore.right{left:auto;right:20px}
+.explore.right .xmenu{left:auto;right:0}
+.explore.right.inbar{right:auto}
+.ptitle{font-size:1.9em;line-height:1.2;margin:8px 0 18px;padding-bottom:6px;border-bottom:1px solid var(--border)}
+#pages{min-height:60vh}
 @media (max-width:640px){.hero{grid-template-columns:1fr;text-align:center;justify-items:center}.btns,.toprow{justify-content:center}h1{font-size:1.9em}nav .hide{display:none}}
 </style>
 </head>
@@ -80,7 +87,17 @@ footer{max-width:920px;margin:0 auto;padding:18px 20px 30px;border-top:1px solid
   </div>
 </div>
 
-<main>
+<div class="explore right" id="deepdive">
+  <button class="xbtn" id="dbtn" type="button" aria-haspopup="true" aria-expanded="false">Deep Dive ▾</button>
+  <div class="xmenu" role="menu">
+    <a href="#latest" role="menuitem">Latest Findings</a>
+    <a href="#tech" role="menuitem">Technology</a>
+    <a href="#papers" role="menuitem">Paper Review</a>
+    <a href="#eureka" role="menuitem">Eureka</a>
+  </div>
+</div>
+
+<main id="home">
   <div class="hero" id="top">
     <div class="photo" id="photo"></div>
     <div>
@@ -98,11 +115,17 @@ footer{max-width:920px;margin:0 auto;padding:18px 20px 30px;border-top:1px solid
   <section id="projects"><h2>Projects</h2><div class="grid" id="projGrid"></div></section>
   <section id="education"><h2>Education</h2><div id="eduList"></div></section>
   <section id="skills"><h2>Skills</h2><div class="grid" id="skillGrid"></div></section>
-  <section id="blog"><h2>Blog Posts</h2><div class="grid" id="blogGrid"></div></section>
-  <section id="movies"><h2>Movie Review</h2><div class="grid" id="movieGrid"></div></section>
-  <section id="tv"><h2>TV Series Review</h2><div class="grid" id="tvGrid"></div></section>
-  <section id="books"><h2>Book Review</h2><div class="grid" id="bookGrid"></div></section>
   <section id="contact"><h2>Contact</h2><div class="card" id="contactBox"></div></section>
+</main>
+<main id="pages" hidden>
+  <section class="page" id="blog" hidden><a class="back" href="#top">← Back to home</a><h1 class="ptitle">Blog Posts</h1><div class="grid" id="blogGrid"></div></section>
+  <section class="page" id="movies" hidden><a class="back" href="#top">← Back to home</a><h1 class="ptitle">Movie Review</h1><div class="grid" id="movieGrid"></div></section>
+  <section class="page" id="tv" hidden><a class="back" href="#top">← Back to home</a><h1 class="ptitle">TV Series Review</h1><div class="grid" id="tvGrid"></div></section>
+  <section class="page" id="books" hidden><a class="back" href="#top">← Back to home</a><h1 class="ptitle">Book Review</h1><div class="grid" id="bookGrid"></div></section>
+  <section class="page" id="latest" hidden><a class="back" href="#top">← Back to home</a><h1 class="ptitle">Latest Findings</h1><div class="grid" id="latestGrid"></div></section>
+  <section class="page" id="tech" hidden><a class="back" href="#top">← Back to home</a><h1 class="ptitle">Technology</h1><div class="grid" id="techGrid"></div></section>
+  <section class="page" id="papers" hidden><a class="back" href="#top">← Back to home</a><h1 class="ptitle">Paper Review</h1><div class="grid" id="paperGrid"></div></section>
+  <section class="page" id="eureka" hidden><a class="back" href="#top">← Back to home</a><h1 class="ptitle">Eureka</h1><div class="grid" id="eurekaGrid"></div></section>
 </main>
 <footer id="foot"></footer>
 <div id="toast" role="status"></div>
@@ -151,7 +174,8 @@ const CONFIG = {
     { group: "Software and Tools", items: [] }
   ],
   // Entries for the Explore menu. Example: { title: "Title", meta: "Date or author", rating: "4/5", summary: "Short text", link: "" }
-  blog: [], movies: [], tv: [], books: []
+  blog: [], movies: [], tv: [], books: [],
+  findings: [], technology: [], papers: [], eureka: []
 };
 /* ========== END CUSTOMIZE ========== */
 
@@ -212,7 +236,7 @@ C.skills.forEach(s => {
   $("skillGrid").append(c);
 });
 
-[["blogGrid",C.blog,"blog post"],["movieGrid",C.movies,"movie review"],["tvGrid",C.tv,"TV series review"],["bookGrid",C.books,"book review"]].forEach(([id,list,noun]) => {
+[["blogGrid",C.blog,"blog post"],["movieGrid",C.movies,"movie review"],["tvGrid",C.tv,"TV series review"],["bookGrid",C.books,"book review"],["latestGrid",C.findings,"finding"],["techGrid",C.technology,"technology note"],["paperGrid",C.papers,"paper review"],["eurekaGrid",C.eureka,"eureka note"]].forEach(([id,list,noun]) => {
   const g = $(id);
   if (!list || !list.length){ const c = el("div","card"); c.append(ph("[Your first " + noun + " will appear here soon.]")); g.append(c); return; }
   list.forEach(p => {
@@ -243,6 +267,35 @@ xb.addEventListener("click", e => { e.stopPropagation(); const o = ex.classList.
 ex.querySelectorAll(".xmenu a").forEach(a => a.addEventListener("click", closeX));
 document.addEventListener("click", e => { if (!ex.contains(e.target)) closeX(); });
 addEventListener("keydown", e => { if (e.key === "Escape") closeX(); });
+
+/* Deep Dive dropdown: fixed in the right margin on wide screens, inside the top bar on narrow ones */
+const dx = $("deepdive"), db = $("dbtn");
+function placeD(){
+  const narrow = innerWidth < 1240;
+  if (narrow && !dx.classList.contains("inbar")){ dx.classList.add("inbar"); document.querySelector("header nav").insertBefore(dx, $("theme")); }
+  else if (!narrow && dx.classList.contains("inbar")){ dx.classList.remove("inbar"); document.body.appendChild(dx); }
+}
+function closeD(){ dx.classList.remove("open"); db.setAttribute("aria-expanded","false"); }
+placeD(); addEventListener("resize", placeD);
+db.addEventListener("click", e => { e.stopPropagation(); closeX(); const o = dx.classList.toggle("open"); db.setAttribute("aria-expanded", String(o)); });
+xb.addEventListener("click", closeD);
+dx.querySelectorAll(".xmenu a").forEach(a => a.addEventListener("click", closeD));
+document.addEventListener("click", e => { if (!dx.contains(e.target)) closeD(); });
+addEventListener("keydown", e => { if (e.key === "Escape") closeD(); });
+
+/* Page routing: Explore and Deep Dive items open as separate pages, everything else is the home page */
+const PAGES = ["blog","movies","tv","books","latest","tech","papers","eureka"];
+function route(){
+  const h = decodeURIComponent(location.hash.slice(1));
+  const isPage = PAGES.includes(h);
+  $("home").hidden = isPage;
+  $("pages").hidden = !isPage;
+  PAGES.forEach(p => { $(p).hidden = p !== h; });
+  if (isPage){ document.title = $(h).querySelector(".ptitle").textContent + " | " + C.name; window.scrollTo(0,0); }
+  else { document.title = C.name + " | Electrical and Electronics Engineer"; const t = h ? document.getElementById(h) : null; if (t) t.scrollIntoView(); else window.scrollTo(0,0); }
+}
+addEventListener("hashchange", route);
+route();
 
 /* Theme toggle */
 const root = document.documentElement, tbtn = $("theme");
