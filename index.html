@@ -74,7 +74,6 @@ table{width:100%;border-collapse:collapse}
 th,td{border:1px solid var(--border);padding:6px 10px;text-align:left}
 th{background:var(--surface)}
 th.num,td.num{text-align:right}
-.cwrap{max-width:920px;margin:0 auto;padding:0 20px 24px}
 .ptitle{font-size:1.9em;line-height:1.2;margin:8px 0 18px;padding-bottom:6px;border-bottom:1px solid var(--border)}
 #pages{min-height:60vh}
 @media (max-width:640px){.hero{grid-template-columns:1fr;text-align:center;justify-items:center}.btns,.toprow{justify-content:center}h1{font-size:1.9em}nav .hide{display:none}}
@@ -141,7 +140,6 @@ th.num,td.num{text-align:right}
   <section class="page" id="papers" hidden><a class="back" href="#top">← Back to home</a><h1 class="ptitle">Paper Review</h1><div class="grid" id="paperGrid"></div></section>
   <section class="page" id="eureka" hidden><a class="back" href="#top">← Back to home</a><h1 class="ptitle">Eureka</h1><div class="grid" id="eurekaGrid"></div></section>
 </main>
-<div class="cwrap"><section id="comments"><h2 id="cTitle">Comments</h2><p class="ph" id="cNote"></p><div id="disqus_thread"></div></section></div>
 <footer id="foot"></footer>
 <div id="toast" role="status"></div>
 
@@ -155,7 +153,6 @@ const CONFIG = {
   bio: "Hi there! This time it is not what you thought before. It is what you are doing now you never thought. Yes! I am trying to bridge these two kinds in an uninteresting way for others, and in a very enthusiastic way for myself this time. “Yeah, Mr. White! Yeah, science!”",
   location: "Chattogram, Bangladesh-4202",
   goatcounter: "",   // your free GoatCounter code (the part before .goatcounter.com) turns on visit and click counting
-  disqus: "",   // your Disqus shortname turns on comments, replies and likes
   email: "hazaritarif@gmail.com",
   photo: "",   // paste an image data URL here later; empty shows a placeholder
   links: [
@@ -344,27 +341,13 @@ function loadStats(){
   cells.forEach(([r,v,c]) => { if (r[1]) getCount(r[1]).then(n => { v.textContent = n; }); if (r[2]) getCount(r[2]).then(n => { c.textContent = n; }); });
 }
 
-/* Comments with Disqus (turned on by CONFIG.disqus): one thread per page, replies and likes are built in */
-const DQ = (C.disqus || "").trim();
-let dqLoaded = false;
-function loadComments(view){
-  const label = view === "home" ? "Home page" : $(view).querySelector(".ptitle").textContent;
-  $("cTitle").textContent = "Comments: " + label;
-  if (!DQ){ $("cNote").textContent = "[Comments are off. Add your Disqus shortname to the disqus field in CONFIG to turn them on.]"; return; }
-  const cfg = function(){ this.page.identifier = view; this.page.url = location.origin + location.pathname + "#" + view; };
-  if (!dqLoaded){
-    dqLoaded = true; window.disqus_config = cfg;
-    const s = document.createElement("script"); s.src = "https://" + DQ + ".disqus.com/embed.js"; s.setAttribute("data-timestamp", String(Date.now())); s.async = true; document.body.append(s);
-  } else if (window.DISQUS){ window.DISQUS.reset({reload: true, config: cfg}); }
-}
-
 /* Page routing: Explore and Deep Dive items open as separate pages, everything else is the home page */
 const PAGES = ["blog","movies","tv","books","music","latest","tech","papers","eureka"];
 function route(){
   const h = decodeURIComponent(location.hash.slice(1));
   const isPage = PAGES.includes(h);
   const cur = isPage ? h : "home";
-  if (cur !== lastView){ lastView = cur; hit("/" + cur); loadComments(cur); }
+  if (cur !== lastView){ lastView = cur; hit("/" + cur); }
   $("home").hidden = isPage;
   $("pages").hidden = !isPage;
   PAGES.forEach(p => { $(p).hidden = p !== h; });
