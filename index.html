@@ -64,6 +64,11 @@ footer{max-width:920px;margin:0 auto;padding:18px 20px 30px;border-top:1px solid
 .explore.right{left:auto;right:20px}
 .explore.right .xmenu{left:auto;right:0}
 .explore.right.inbar{right:auto}
+#explore .xbtn{background:#f6e7a6;color:#1a1a1a;border-color:#d9c26a}
+#explore .xbtn:hover{background:#f2dc8a;border-color:#b8860b}
+#explore .xmenu{background:transparent;border:none;box-shadow:none;padding:6px 0 0}
+#explore .xmenu a{background:#bfe3f2;color:#0b2a3a;margin-bottom:4px;border:1px solid #93c9de;box-shadow:0 2px 8px rgba(0,0,0,.15)}
+#explore .xmenu a:hover{background:#a6d6ea;color:#0b2a3a}
 .ptitle{font-size:1.9em;line-height:1.2;margin:8px 0 18px;padding-bottom:6px;border-bottom:1px solid var(--border)}
 #pages{min-height:60vh}
 @media (max-width:640px){.hero{grid-template-columns:1fr;text-align:center;justify-items:center}.btns,.toprow{justify-content:center}h1{font-size:1.9em}nav .hide{display:none}}
@@ -84,6 +89,7 @@ footer{max-width:920px;margin:0 auto;padding:18px 20px 30px;border-top:1px solid
     <a href="#movies" role="menuitem">Movie Review</a>
     <a href="#tv" role="menuitem">TV Series Review</a>
     <a href="#books" role="menuitem">Book Review</a>
+    <a href="#music" role="menuitem">Music</a>
   </div>
 </div>
 
@@ -122,6 +128,7 @@ footer{max-width:920px;margin:0 auto;padding:18px 20px 30px;border-top:1px solid
   <section class="page" id="movies" hidden><a class="back" href="#top">← Back to home</a><h1 class="ptitle">Movie Review</h1><div class="grid" id="movieGrid"></div></section>
   <section class="page" id="tv" hidden><a class="back" href="#top">← Back to home</a><h1 class="ptitle">TV Series Review</h1><div class="grid" id="tvGrid"></div></section>
   <section class="page" id="books" hidden><a class="back" href="#top">← Back to home</a><h1 class="ptitle">Book Review</h1><div class="grid" id="bookGrid"></div></section>
+  <section class="page" id="music" hidden><a class="back" href="#top">← Back to home</a><h1 class="ptitle">Music</h1><div class="grid" id="musicGrid"></div></section>
   <section class="page" id="latest" hidden><a class="back" href="#top">← Back to home</a><h1 class="ptitle">Latest Findings</h1><div class="grid" id="latestGrid"></div></section>
   <section class="page" id="tech" hidden><a class="back" href="#top">← Back to home</a><h1 class="ptitle">Technology</h1><div class="grid" id="techGrid"></div></section>
   <section class="page" id="papers" hidden><a class="back" href="#top">← Back to home</a><h1 class="ptitle">Paper Review</h1><div class="grid" id="paperGrid"></div></section>
@@ -174,7 +181,7 @@ const CONFIG = {
     { group: "Software and Tools", items: [] }
   ],
   // Entries for the Explore menu. Example: { title: "Title", meta: "Date or author", rating: "4/5", summary: "Short text", link: "" }
-  blog: [], movies: [], tv: [], books: [],
+  blog: [], movies: [], tv: [], books: [], music: [],
   findings: [], technology: [], papers: [], eureka: []
 };
 /* ========== END CUSTOMIZE ========== */
@@ -236,7 +243,7 @@ C.skills.forEach(s => {
   $("skillGrid").append(c);
 });
 
-[["blogGrid",C.blog,"blog post"],["movieGrid",C.movies,"movie review"],["tvGrid",C.tv,"TV series review"],["bookGrid",C.books,"book review"],["latestGrid",C.findings,"finding"],["techGrid",C.technology,"technology note"],["paperGrid",C.papers,"paper review"],["eurekaGrid",C.eureka,"eureka note"]].forEach(([id,list,noun]) => {
+[["blogGrid",C.blog,"blog post"],["movieGrid",C.movies,"movie review"],["tvGrid",C.tv,"TV series review"],["bookGrid",C.books,"book review"],["musicGrid",C.music,"music post"],["latestGrid",C.findings,"finding"],["techGrid",C.technology,"technology note"],["paperGrid",C.papers,"paper review"],["eurekaGrid",C.eureka,"eureka note"]].forEach(([id,list,noun]) => {
   const g = $(id);
   if (!list || !list.length){ const c = el("div","card"); c.append(ph("[Your first " + noun + " will appear here soon.]")); g.append(c); return; }
   list.forEach(p => {
@@ -284,7 +291,7 @@ document.addEventListener("click", e => { if (!dx.contains(e.target)) closeD(); 
 addEventListener("keydown", e => { if (e.key === "Escape") closeD(); });
 
 /* Page routing: Explore and Deep Dive items open as separate pages, everything else is the home page */
-const PAGES = ["blog","movies","tv","books","latest","tech","papers","eureka"];
+const PAGES = ["blog","movies","tv","books","music","latest","tech","papers","eureka"];
 function route(){
   const h = decodeURIComponent(location.hash.slice(1));
   const isPage = PAGES.includes(h);
