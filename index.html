@@ -50,6 +50,15 @@ p{margin:0 0 10px}
 footer{max-width:920px;margin:0 auto;padding:18px 20px 30px;border-top:1px solid var(--border);color:var(--muted);font-size:.9em}
 #toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--text);color:var(--bg);padding:8px 16px;border-radius:6px;opacity:0;pointer-events:none;transition:opacity .2s;z-index:20}
 #toast.on{opacity:1}
+.explore{position:fixed;top:calc(env(safe-area-inset-top,0px) + 8px);left:20px;z-index:12}
+.explore.inbar{position:relative;top:auto;left:auto}
+.xbtn{background:var(--surface);color:var(--text);border:1px solid var(--border);border-radius:6px;padding:4px 14px}
+.xbtn:hover{border-color:var(--link)}
+.xmenu{display:none;position:absolute;left:0;top:calc(100% + 6px);min-width:200px;background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:6px;box-shadow:0 6px 18px rgba(0,0,0,.18)}
+.explore.inbar .xmenu{left:auto;right:0}
+.explore.open .xmenu{display:block}
+.xmenu a{display:block;padding:6px 10px;border-radius:5px;color:var(--text)}
+.xmenu a:hover{background:var(--bg);color:var(--link);text-decoration:none}
 @media (max-width:640px){.hero{grid-template-columns:1fr;text-align:center;justify-items:center}.btns,.toprow{justify-content:center}h1{font-size:1.9em}nav .hide{display:none}}
 </style>
 </head>
@@ -61,6 +70,15 @@ footer{max-width:920px;margin:0 auto;padding:18px 20px 30px;border-top:1px solid
     <button id="theme" type="button" aria-label="Toggle light and dark mode">Dark</button>
   </nav>
 </div></header>
+<div class="explore" id="explore">
+  <button class="xbtn" id="xbtn" type="button" aria-haspopup="true" aria-expanded="false">Explore ▾</button>
+  <div class="xmenu" role="menu">
+    <a href="#blog" role="menuitem">Blog Posts</a>
+    <a href="#movies" role="menuitem">Movie Review</a>
+    <a href="#tv" role="menuitem">TV Series Review</a>
+    <a href="#books" role="menuitem">Book Review</a>
+  </div>
+</div>
 
 <main>
   <div class="hero" id="top">
@@ -80,6 +98,10 @@ footer{max-width:920px;margin:0 auto;padding:18px 20px 30px;border-top:1px solid
   <section id="projects"><h2>Projects</h2><div class="grid" id="projGrid"></div></section>
   <section id="education"><h2>Education</h2><div id="eduList"></div></section>
   <section id="skills"><h2>Skills</h2><div class="grid" id="skillGrid"></div></section>
+  <section id="blog"><h2>Blog Posts</h2><div class="grid" id="blogGrid"></div></section>
+  <section id="movies"><h2>Movie Review</h2><div class="grid" id="movieGrid"></div></section>
+  <section id="tv"><h2>TV Series Review</h2><div class="grid" id="tvGrid"></div></section>
+  <section id="books"><h2>Book Review</h2><div class="grid" id="bookGrid"></div></section>
   <section id="contact"><h2>Contact</h2><div class="card" id="contactBox"></div></section>
 </main>
 <footer id="foot"></footer>
@@ -127,7 +149,9 @@ const CONFIG = {
   skills: [
     { group: "Technical", items: [] },
     { group: "Software and Tools", items: [] }
-  ]
+  ],
+  // Entries for the Explore menu. Example: { title: "Title", meta: "Date or author", rating: "4/5", summary: "Short text", link: "" }
+  blog: [], movies: [], tv: [], books: []
 };
 /* ========== END CUSTOMIZE ========== */
 
@@ -188,10 +212,37 @@ C.skills.forEach(s => {
   $("skillGrid").append(c);
 });
 
+[["blogGrid",C.blog,"blog post"],["movieGrid",C.movies,"movie review"],["tvGrid",C.tv,"TV series review"],["bookGrid",C.books,"book review"]].forEach(([id,list,noun]) => {
+  const g = $(id);
+  if (!list || !list.length){ const c = el("div","card"); c.append(ph("[Your first " + noun + " will appear here soon.]")); g.append(c); return; }
+  list.forEach(p => {
+    const c = el("div","card"); c.append(el("h3","",p.title));
+    if (p.meta) c.append(el("div","sub",p.meta));
+    if (p.rating) c.append(el("div","sub","Rating: " + p.rating));
+    c.append(el("p","",p.summary || ""));
+    if (p.link){ const d = el("div"); d.append(ext("Read more", p.link)); c.append(d); }
+    g.append(c);
+  });
+});
+
 const cb = $("contactBox");
 const em = el("p"); em.append(document.createTextNode("Email: ")); const ea = el("a","",C.email); ea.href = "mailto:" + C.email; em.append(ea); cb.append(em);
 C.links.forEach(l => { const p = el("p"); p.append(ext(l.label, l.url)); cb.append(p); });
 cb.append(el("p","sub","Location: " + C.location));
+
+/* Explore dropdown: fixed in the left margin on wide screens, inside the top bar on narrow ones */
+const ex = $("explore"), xb = $("xbtn");
+function place(){
+  const narrow = innerWidth < 1240;
+  if (narrow && !ex.classList.contains("inbar")){ ex.classList.add("inbar"); document.querySelector("header nav").insertBefore(ex, $("theme")); }
+  else if (!narrow && ex.classList.contains("inbar")){ ex.classList.remove("inbar"); document.body.appendChild(ex); }
+}
+function closeX(){ ex.classList.remove("open"); xb.setAttribute("aria-expanded","false"); }
+place(); addEventListener("resize", place);
+xb.addEventListener("click", e => { e.stopPropagation(); const o = ex.classList.toggle("open"); xb.setAttribute("aria-expanded", String(o)); });
+ex.querySelectorAll(".xmenu a").forEach(a => a.addEventListener("click", closeX));
+document.addEventListener("click", e => { if (!ex.contains(e.target)) closeX(); });
+addEventListener("keydown", e => { if (e.key === "Escape") closeX(); });
 
 /* Theme toggle */
 const root = document.documentElement, tbtn = $("theme");
